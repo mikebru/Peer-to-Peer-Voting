@@ -201,12 +201,19 @@ function rtcConfig() {
 }
 
 function encodeSignal(obj) {
-  return btoa(unescape(encodeURIComponent(JSON.stringify(obj))));
+  // Reduce QR density by:
+  // 1) using URL-safe base64 (no +,/ or =)
+  // 2) minimizing JSON keys
+  const json = JSON.stringify(obj);
+  const b64 = btoa(unescape(encodeURIComponent(json)));
+  return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
 
 function decodeSignal(text) {
   try {
-    return JSON.parse(decodeURIComponent(escape(atob(String(text).trim()))));
+    const t = String(text).trim().replace(/-/g, "+").replace(/_/g, "/");
+    const pad = t.length % 4 === 0 ? "" : "=".repeat(4 - (t.length % 4));
+    return JSON.parse(decodeURIComponent(escape(atob(t + pad))));
   } catch {
     throw new Error("Invalid QR / pasted text");
   }
@@ -235,13 +242,42 @@ function renderQR(containerSel, text) {
     throw new Error("QRCode library not loaded. Ensure the qrcode script tag is included before app.js.");
   }
 
-  QRCode.toCanvas(text, { width: 220, margin: 1 }, (err, canvas) => {
-    if (err) {
-      box.textContent = "QR error";
-      return;
-    }
-    box.appendChild(canvas);
-  });
+  // Support both APIs:
+  // - node-qrcode build: QRCode.toCanvas(text, opts, cb)
+  // - davidshimjs/qrcodejs: new QRCode(element, { text, width, height, ... })
+  if (typeof QRCode.toCanvas === "function") {
+    QRCode.toCanvas(text, { width: 220, margin: 1 }, (err, canvas) => {
+      if (err) {
+        box.textContent = "QR error";
+        return;
+      }
+      box.appendChild(canvas);
+    });
+    return;
+  }
+
+  // qrcodejs fallback
+  if (typeof QRCode === "function") {
+    // qrcodejs writes DOM nodes directly into the container.
+    // Give it a consistent background + padding by adding a wrapper.
+    const inner = document.createElement("div");
+    inner.className = "qr-inner";
+    box.appendChild(inner);
+
+    // eslint-disable-next-line no-new
+    new QRCode(inner, {
+      text,
+      width: 260,
+      height: 260,
+      colorDark: "#111111",
+      colorLight: "#ffffff",
+      correctLevel: (window.QRCode && window.QRCode.CorrectLevel ? window.QRCode.CorrectLevel.M : undefined),
+    });
+    return;
+  }
+
+  box.textContent = "Unsupported QR library";
+  throw new Error("Unsupported QR library: expected QRCode.toCanvas or QRCode constructor.");
 }
 
 function getRoomSnapshot() {
@@ -340,11 +376,11 @@ async function hostCreateInvite() {
   await waitIceGatheringComplete(pc);
 
   const payload = {
-    t: "offer",
-    roomId: state.roomId,
-    roomName: state.roomName,
-    inviteId,
-    sdp: pc.localDescription,
+    t: "o", // offer
+    r: state.roomId,
+    n: state.roomName,
+    i: inviteId,
+    s: pc.localDescription,
   };
 
   const text = encodeSignal(payload);
@@ -359,15 +395,15 @@ async function hostAcceptAnswer(answerText) {
   if (!state.pendingInvite?.pc) throw new Error("Generate an invite first");
 
   const payload = decodeSignal(answerText);
-  if (payload.t !== "answer") throw new Error("Not an answer payload");
-  if (payload.roomId !== state.roomId) throw new Error("Answer is for a different room");
-  if (payload.inviteId !== state.pendingInvite.inviteId) throw new Error("Answer does not match current invite");
+  if (payload.t !== "a") throw new Error("Not an answer payload");
+  if (payload.r !== state.roomId) throw new Error("Answer is for a different room");
+  if (payload.i !== state.pendingInvite.inviteId) throw new Error("Answer does not match current invite");
 
   const pc = state.pendingInvite.pc;
   const dc = state.pendingInvite.dc;
-  const peerId = payload.peerId;
+  const peerId = payload.p;
 
-  await pc.setRemoteDescription(payload.sdp);
+  await pc.setRemoteDescription(payload.s);
 
   dc.addEventListener("open", () => {
     state.peers.set(peerId, { pc, dc });
@@ -384,7 +420,7 @@ async function participantGenerateAnswer(offerText) {
   state.role = "participant";
 
   const offerPayload = decodeSignal(offerText);
-  if (offerPayload.t !== "offer") throw new Error("Not an offer payload");
+  if (offerPayload.t !== "o") throw new Error("Not an offer payload");
 
   const pc = new RTCPeerConnection(rtcConfig());
   state.pc = pc;
@@ -397,22 +433,22 @@ async function participantGenerateAnswer(offerText) {
     });
   });
 
-  await pc.setRemoteDescription(offerPayload.sdp);
+  await pc.setRemoteDescription(offerPayload.s);
   const answer = await pc.createAnswer();
   await pc.setLocalDescription(answer);
   await waitIceGatheringComplete(pc);
 
   // room identity immediately
-  state.roomId = offerPayload.roomId;
-  state.roomName = offerPayload.roomName;
+  state.roomId = offerPayload.r;
+  state.roomName = offerPayload.n;
   renderRoomInfo();
 
   const answerPayload = {
-    t: "answer",
-    roomId: offerPayload.roomId,
-    inviteId: offerPayload.inviteId,
-    peerId: state.peerId,
-    sdp: pc.localDescription,
+    t: "a", // answer
+    r: offerPayload.r,
+    i: offerPayload.i,
+    p: state.peerId,
+    s: pc.localDescription,
   };
 
   const text = encodeSignal(answerPayload);

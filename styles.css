@@ -260,8 +260,8 @@ hr.sep{border:0;border-top:1px solid rgba(255,255,255,.10);margin: 14px 0}
 .toast .small{color: var(--muted);font-size: 12.5px;margin-top: 2px}
 
 .qr{
-  width: 220px;
-  height: 220px;
+  width: 280px;
+  height: 280px;
   border-radius: 16px;
   border: 1px solid rgba(255,255,255,.14);
   background: rgba(255,255,255,.06);
@@ -270,4 +270,26 @@ hr.sep{border:0;border-top:1px solid rgba(255,255,255,.10);margin: 14px 0}
   overflow:hidden;
 }
 
-.qr canvas, .qr img{width: 220px;height:220px;display:block}
+.qr canvas, .qr img{width: 280px;height:280px;display:block}
+
+/* Better QR presentation */
+.qr{
+  box-shadow: 0 10px 30px rgba(0,0,0,.22);
+  backdrop-filter: blur(8px);
+}
+
+.qr .qr-inner{
+  width: 280px;
+  height: 280px;
+  display:grid;
+  place-items:center;
+  padding: 14px;
+  background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.90));
+}
+
+.qr .qr-inner canvas,
+.qr .qr-inner img{
+  width: 252px;
+  height: 252px;
+  display:block;
+}
