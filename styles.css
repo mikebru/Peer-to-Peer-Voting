@@ -1,0 +1,273 @@
+/* Modern, clean styling for Voting Rooms */
+:root{
+  --bg:#0b1020;
+  --panel:rgba(255,255,255,.06);
+  --panel2:rgba(255,255,255,.10);
+  --text:#e9ecf5;
+  --muted:#aab3cf;
+  --accent:#6ee7ff;
+  --accent2:#a78bfa;
+  --danger:#ff6b6b;
+  --ok:#34d399;
+  --border:rgba(255,255,255,.14);
+  --shadow: 0 12px 40px rgba(0,0,0,.35);
+  --radius: 16px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  color:var(--text);
+  background:
+    radial-gradient(1100px 700px at 12% 18%, rgba(167,139,250,.28), transparent 65%),
+    radial-gradient(900px 650px at 85% 25%, rgba(110,231,255,.22), transparent 55%),
+    radial-gradient(900px 650px at 55% 95%, rgba(52,211,153,.10), transparent 60%),
+    var(--bg);
+}
+
+a{color:inherit}
+button, input{font:inherit}
+
+.container{
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 18px 60px;
+}
+
+.header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06));
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.logo{
+  width:38px;height:38px;
+  border-radius: 12px;
+  background: conic-gradient(from 210deg, var(--accent), var(--accent2), var(--ok), var(--accent));
+  box-shadow: 0 10px 30px rgba(110,231,255,.14);
+}
+
+.title{
+  line-height:1.1;
+}
+.title h1{margin:0;font-size:18px;letter-spacing:.2px}
+.title p{margin:2px 0 0;color:var(--muted);font-size:12.5px}
+
+.userchip{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.pill{
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,.15);
+}
+
+.grid{
+  display:grid;
+  grid-template-columns: 1.1fr .9fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+@media (max-width: 920px){
+  .grid{grid-template-columns:1fr}
+}
+
+.card{
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,.06);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.card .card-h{
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.10);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.card .card-h h2{margin:0;font-size:14px;letter-spacing:.2px}
+.card .card-h .hint{color:var(--muted);font-size:12.5px}
+
+.card .card-b{padding: 16px}
+
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+input[type="text"], input[type="number"], input[type="file"]{
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.20);
+  color: var(--text);
+  outline: none;
+}
+
+input::placeholder{color: rgba(233,236,245,.55)}
+
+.btn{
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.10);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor:pointer;
+  transition: transform .06s ease, background .15s ease, border-color .15s ease;
+  user-select:none;
+}
+.btn:hover{background: rgba(255,255,255,.14);border-color: rgba(255,255,255,.22)}
+.btn:active{transform: translateY(1px)}
+
+.btn.primary{
+  background: linear-gradient(180deg, rgba(110,231,255,.25), rgba(167,139,250,.18));
+  border-color: rgba(110,231,255,.30);
+}
+.btn.primary:hover{background: linear-gradient(180deg, rgba(110,231,255,.34), rgba(167,139,250,.22))}
+
+.btn.danger{border-color: rgba(255,107,107,.35);background: rgba(255,107,107,.10)}
+.btn.danger:hover{background: rgba(255,107,107,.16)}
+
+.btn.ok{border-color: rgba(52,211,153,.35);background: rgba(52,211,153,.10)}
+.btn.ok:hover{background: rgba(52,211,153,.16)}
+
+.btn.small{padding:7px 10px;border-radius: 10px;font-size: 13px}
+
+.kv{
+  display:grid;
+  grid-template-columns: 120px 1fr;
+  gap: 8px 12px;
+  align-items:center;
+  color: var(--muted);
+  font-size: 13px;
+}
+.kv b{color: var(--text);font-weight: 600}
+
+.notice{
+  border:1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.18);
+  padding: 10px 12px;
+  border-radius: 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.notice strong{color: var(--text)}
+
+.badge{
+  padding: 4px 8px;
+  border-radius: 999px;
+  border:1px solid rgba(255,255,255,.16);
+  background: rgba(0,0,0,.18);
+  font-size: 12px;
+  color: var(--muted);
+}
+.badge.live{border-color: rgba(52,211,153,.28);color: rgba(52,211,153,.92)}
+.badge.wait{border-color: rgba(110,231,255,.24);color: rgba(110,231,255,.92)}
+.badge.vote{border-color: rgba(167,139,250,.28);color: rgba(167,139,250,.95)}
+.badge.closed{border-color: rgba(255,107,107,.28);color: rgba(255,107,107,.92)}
+
+.gallery{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+@media (max-width: 560px){
+  .gallery{grid-template-columns:1fr}
+}
+
+.tile{
+  border:1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.16);
+  border-radius: 14px;
+  overflow:hidden;
+}
+.tile img{width:100%;height:180px;object-fit:cover;display:block}
+.tile .meta{padding: 10px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.tile .meta .sub{color: var(--muted);font-size: 12px}
+
+.rate{
+  display:flex;
+  gap: 6px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
+.rate button{
+  width: 34px;
+  height: 32px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.08);
+  color: var(--text);
+  cursor:pointer;
+}
+.rate button.active{
+  border-color: rgba(110,231,255,.40);
+  background: rgba(110,231,255,.16);
+}
+
+.footer{
+  margin-top: 16px;
+  color: rgba(233,236,245,.65);
+  font-size: 12px;
+  text-align:center;
+}
+
+.hidden{display:none !important}
+
+hr.sep{border:0;border-top:1px solid rgba(255,255,255,.10);margin: 14px 0}
+
+.mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+
+.toast{
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: min(720px, calc(100% - 24px));
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.16);
+  background: rgba(0,0,0,.55);
+  backdrop-filter: blur(8px);
+  box-shadow: var(--shadow);
+  color: var(--text);
+  display:none;
+}
+.toast.show{display:block}
+.toast .small{color: var(--muted);font-size: 12.5px;margin-top: 2px}
+
+.qr{
+  width: 220px;
+  height: 220px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+}
+
+.qr canvas, .qr img{width: 220px;height:220px;display:block}

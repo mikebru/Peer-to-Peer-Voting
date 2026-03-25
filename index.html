@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Voting Rooms</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div class="title">
+          <h1>Voting Rooms</h1>
+          <p>Collect images, then vote 1–5. Peer-to-peer (no backend).</p>
+        </div>
+      </div>
+      <div class="userchip">
+        <span class="pill">User <span id="userId" class="mono">—</span></span>
+        <span id="phaseBadge" class="badge wait">—</span>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- Auth / Lobby -->
+      <section id="authArea" class="card">
+        <div class="card-h">
+          <h2>Start</h2>
+          <div class="hint">Peer-to-peer (WebRTC) via QR signaling</div>
+        </div>
+        <div class="card-b">
+          <div class="notice">
+            <strong>Host:</strong> create a room, then share an invite QR for each participant.<br />
+            <strong>Participants:</strong> scan the host's invite QR and show back your answer QR.
+          </div>
+
+          <hr class="sep" />
+
+          <div class="row" style="align-items:flex-end">
+            <div style="flex:1;min-width:220px">
+              <label class="hint" for="newRoomName">Room name</label>
+              <input id="newRoomName" type="text" placeholder="e.g. Best Photo" />
+            </div>
+            <button id="btnCreate" class="btn primary" type="button">Create room (host)</button>
+          </div>
+
+          <hr class="sep" />
+
+          <div class="notice">
+            <strong>Join as participant</strong>
+            <div class="small">Scan the host invite QR and paste the scanned text here.</div>
+          </div>
+
+          <div class="row" style="align-items:flex-end;margin-top:10px">
+            <div style="flex:1;min-width:220px">
+              <label class="hint" for="joinOffer">Host invite (offer)</label>
+              <input id="joinOffer" type="text" placeholder="Paste scanned offer text" />
+            </div>
+            <button id="btnJoin" class="btn" type="button">Generate answer</button>
+          </div>
+
+          <div id="participantAnswerBox" class="hidden" style="margin-top:12px">
+            <div class="notice">
+              <strong>Your answer</strong>
+              <div class="small">Show this QR to the host (or copy the text).</div>
+            </div>
+            <div class="row" style="gap:12px;align-items:flex-start;margin-top:10px">
+              <div style="flex:1;min-width:260px">
+                <input id="participantAnswerText" type="text" readonly />
+                <div class="row" style="margin-top:8px">
+                  <button id="btnCopyParticipantAnswer" class="btn small" type="button">Copy</button>
+                </div>
+              </div>
+              <div class="qr" id="participantAnswerQR" aria-label="Participant answer QR"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Room panel -->
+      <section id="roomArea" class="card hidden">
+        <div class="card-h">
+          <h2>Room</h2>
+          <div class="hint"><span id="role">—</span></div>
+        </div>
+        <div class="card-b">
+          <div class="kv">
+            <div>Room</div>
+            <div><b id="roomName">—</b></div>
+            <div>Name</div>
+            <div><b class="mono" id="roomId">—</b></div>
+            <div>Images</div>
+            <div><b id="imageCount">0</b></div>
+          </div>
+
+          <div id="p2pHostInvite" class="hidden">
+            <hr class="sep" />
+            <div class="notice">
+              <strong>Invite a participant</strong>
+              <div class="small">Generate an invite QR (offer), have them scan it, then scan their answer into the box below.</div>
+            </div>
+
+            <div class="row" style="margin-top:10px;align-items:flex-start;gap:12px">
+              <div style="flex:1;min-width:260px">
+                <div class="row">
+                  <button id="btnNewInvite" class="btn primary" type="button">New invite</button>
+                  <button id="btnCopyOffer" class="btn" type="button">Copy offer</button>
+                </div>
+                <input id="hostOfferText" type="text" readonly style="margin-top:10px" />
+
+                <div style="margin-top:12px">
+                  <label class="hint" for="hostAnswerIn">Participant answer (paste scanned)</label>
+                  <input id="hostAnswerIn" type="text" placeholder="Paste participant answer text" />
+                  <div class="row" style="margin-top:8px">
+                    <button id="btnAcceptAnswer" class="btn ok" type="button">Connect participant</button>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div class="qr" id="hostOfferQR" aria-label="Host offer QR"></div>
+              </div>
+            </div>
+          </div>
+
+          <hr class="sep" />
+
+          <div id="hostControls" class="row hidden">
+            <button id="btnStartVoting" class="btn ok" type="button">Start voting</button>
+            <button id="btnCloseVoting" class="btn danger" type="button">Close voting</button>
+            <span class="hint">Host controls phase</span>
+          </div>
+
+          <div class="row" style="justify-content:flex-end">
+            <button id="btnLeave" class="btn" type="button">Leave room</button>
+          </div>
+
+          <div id="uploadArea">
+            <hr class="sep" />
+            <div class="notice">
+              <strong>Upload images</strong> (max 8MB). This is open during <span class="mono">collecting</span>.
+            </div>
+            <div class="row" style="margin-top:10px;align-items:flex-end">
+              <div style="flex:1;min-width:240px">
+                <input id="file" type="file" accept="image/*" />
+              </div>
+              <button id="btnUpload" class="btn primary" type="button">Upload</button>
+            </div>
+          </div>
+
+          <div id="votingArea" class="hidden">
+            <hr class="sep" />
+            <div class="notice">
+              <strong>Vote</strong> by rating each image 1–5.
+              <div id="votingLocked" class="small hidden">Voting is closed — ratings are read-only.</div>
+            </div>
+          </div>
+
+          <div id="resultsArea" class="hidden">
+            <hr class="sep" />
+            <div class="card" style="box-shadow:none;background:rgba(0,0,0,.10)">
+              <div class="card-h">
+                <h2>Results</h2>
+                <div class="hint">Ranked by average score</div>
+              </div>
+              <div id="resultsList" class="card-b"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Gallery -->
+      <section class="card" style="grid-column: 1 / -1;">
+        <div class="card-h">
+          <h2>Images</h2>
+          <div class="hint">Live updates for everyone in the room</div>
+        </div>
+        <div class="card-b">
+          <div id="gallery" class="gallery"></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="footer">
+      Peer-to-peer rooms require QR signaling per participant. Keep the host tab open.
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite">
+    <div id="toastTitle"></div>
+    <div id="toastDetail" class="small"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <script type="module" src="./app.js"></script>
+</body>
+
+</html>
